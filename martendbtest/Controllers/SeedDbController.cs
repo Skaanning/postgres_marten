@@ -8,9 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace martendbtest.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class SeedDbController : ControllerBase
+    public class SeedDbController : BaseController
     {
         private readonly IDocumentStore _documentStore;
 
@@ -69,7 +67,7 @@ namespace martendbtest.Controllers
                     emailFaker.Generate()));
 
             var generatedUsers = userFaker.Generate(100_000);
-            await _documentStore.BulkInsertAsync(generatedUsers, batchSize: 500);
+            await _documentStore.BulkInsertAsync(generatedUsers, batchSize: 1000);
             return generatedUsers.Select(x => x.Id).ToArray();
         }
     }

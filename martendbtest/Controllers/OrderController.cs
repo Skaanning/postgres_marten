@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Baseline;
 using Marten;
 using Marten.Linq.MatchesSql;
-using Marten.Services;
 using Microsoft.AspNetCore.Mvc;
-using Npgsql;
 
 namespace martendbtest.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class OrderController : ControllerBase
+    public class OrderController : BaseController
     {
         private readonly IDocumentStore _documentStore;
 

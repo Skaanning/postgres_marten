@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Marten;
-using Marten.Pagination;
 using Microsoft.AspNetCore.Mvc;
 
 namespace martendbtest.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class UserController : ControllerBase
+    public class UserController : BaseController
     {
         private readonly IDocumentStore _documentStore;
 
@@ -30,7 +27,7 @@ namespace martendbtest.Controllers
             return users;
         }
 
-        [HttpGet("{email}")]
+        [HttpGet("email/{email}")]
         public async Task<IActionResult> GetUser(string email)
         {
             await using var session = _documentStore.LightweightSession();
@@ -53,5 +50,22 @@ namespace martendbtest.Controllers
 
             return Ok(users);
         }
+
+        [HttpGet("{userId}")]
+        public async Task<UserViewModel> GetUser(
+            Guid userId)
+        {
+            await using var session = _documentStore.LightweightSession();
+            User? user = null;
+
+            var orders = await session.Query<Order>()
+                .Include<User>(x => x.UserId, u => user = u)
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+
+            return new UserViewModel(user!.Id, user!.FirstName, user!.LastName, user!.UserName, user!.Email, orders.ToList());
+        }
     }
+
+    public record UserViewModel(Guid Id, string FirstName, string LastName, string UserName, Email Email, List<Order> Orders);
 }
