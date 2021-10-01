@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using Marten;
-using martendbtest.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Weasel.Core;
 using Weasel.Postgresql;
-using Weasel.Postgresql.Tables;
 
 namespace martendbtest
 {
@@ -40,7 +36,7 @@ namespace martendbtest
                 _.Connection(Configuration.GetConnectionString("db"));
                 _.Schema.Include<DbIndexSetup>();
                 _.UseDefaultSerialization(EnumStorage.AsString);
-                // _.AutoCreateSchemaObjects = AutoCreate.None;
+                _.AutoCreateSchemaObjects = AutoCreate.None;
             });
         }
 
@@ -63,28 +59,6 @@ namespace martendbtest
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-        }
-    }
-
-    public class DbIndexSetup : MartenRegistry
-    {
-        public DbIndexSetup()
-        {
-            For<User>().Duplicate(x => x.UserName, configure: docIndex =>
-            {
-                docIndex.Name = "idx_userName";
-                docIndex.Method = IndexMethod.hash;
-            });
-
-            For<User>().Index(x => x.Email);
-
-            For<Order>().GinIndexJsonData();
-
-            For<Order>().Index(x => x.UserId, configure: docIndex =>
-            {
-                docIndex.Name = "idx_userId";
-                docIndex.Method = IndexMethod.hash;
-            });
         }
     }
 }
